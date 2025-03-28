@@ -59,7 +59,7 @@ Make sure that the final item in the path `model_uri = f"runs:/{run_id}/model"` 
  - Carga 5 muestras del dataset de test y proporciona las predicciones. junto con la comparación con los valores reales.
 
 
-## 5. Exponer el modelo como una API
+## 5. Exponer el modelo via API
 ```powershell
 $Env:MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
 mlflow models serve -m "models:/Iris LR Model/1" --host 0.0.0.0 --port 1234 --env-manager=local
@@ -78,7 +78,7 @@ WARNING: *MLflow, a partir de ciertas versiones, intenta por defecto crear un en
 
 ---
 
-## 6. Solicitar predicciones a la API
+## 6. Predicciones con llamadas a la API
 Una vez esté corriendo, el endpoint de predicción será:
 ```
 POST http://localhost:1234/invocations
@@ -179,3 +179,72 @@ More in depth:
 
 
 Think of `mlflow server` as the **central repository (plus UI)** for your MLflow runs and model registry, whereas `mlflow models serve` is a **lightweight inference service** for a single model.
+
+### Serving models from `mlflow server`
+Although `mlflow models serve` allows you to expose a model, `mlflow server` approach decouples server configuration from model selection, allowing you to serve multiple models simultaneously on different ports while maintaining a single tracking server instance.
+
+To select specific models when using the MLflow tracking server, you configure the model URI during deployment rather than at server startup. Here's how to manage model selection:
+
+**Model Serving Workflow**
+1. **Start MLflow Tracking Server** (as shown in your command):
+```bash
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 0.0.0.0 \
+  --port 5000
+```
+
+2. **Reference Models Using URI Schemes**  
+When deploying, use these URI patterns to select models:
+
+| Model Source | URI Format | Example |
+|--------------|------------|---------|
+| Direct Run Artifact | `runs://` | `runs:/0d694714335a4b.../model` |
+| Model Registry | `models://` | `models:/wine-quality/1` |
+| Local File Path | `file:///` | `file:///C:/mlruns/.../model` |
+
+
+**For Registered Models**:
+```python
+from mlflow.tracking import MlflowClient
+
+client = MlflowClient()
+model_version = client.get_latest_versions("wine-quality", stages=["Production"])[0]
+model_uri = f"models:/{model_version.name}/{model_version.version}"
+```
+
+**For Direct Run References**:
+```bash
+mlflow models serve -m "runs:/0d694714335a4b1297672f55f06b391a/model" --port 5001
+```
+
+**Model Selection Best Practices**
+1. Registry vs Direct References
+   - Use `models:/` URIs for production (versioned, stage-managed models)
+   - Use `runs:/` URIs for experimental/testing models
+
+2. Windows Path Considerations
+```bash
+# Encode spaces and special characters
+mlflow models serve -m "file:///C:/Users/.../Mi%20unidad/.../model"
+```
+
+3. Validation Before Serving
+```python
+from mlflow.models import validate_serving_input
+validate_serving_input(model_uri, serving_example)
+```
+
+**Server Configuration Tips**
+
+For high-volume model access, consider using separate `--artifact-only` servers:
+```bash
+# Primary server
+mlflow server --no-serve-artifacts ...
+
+# Artifact server
+mlflow server --artifacts-only ...
+```
+When using SQLite backend, ensure write permissions to the database file
+
