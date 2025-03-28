@@ -7,6 +7,9 @@ from sklearn.metrics import log_loss, accuracy_score
 from datetime import datetime
 import numpy as np
 
+# Configurar MLflow con SQLite
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
+
 # Establece el experimento
 mlflow.set_experiment("iris")
 
@@ -18,7 +21,7 @@ X, y = load_iris(return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 # Entrenamiento y tracking con MLflow
-with mlflow.start_run(run_name=run_name):
+with mlflow.start_run(run_name=run_name) as run:
     max_iter = 10  # Para simular iteraciones y ver convergencia
     model = LogisticRegression(
         max_iter=4,  # 4 iteraciones por ciclo
@@ -62,6 +65,24 @@ with mlflow.start_run(run_name=run_name):
         mlflow.log_metric("log_loss", loss, step=epoch)
 
     # Guardar el modelo final
-    mlflow.sklearn.log_model(model, "modelo_final")
+    mlflow.sklearn.log_model(model, "model")
+    # "model" aparece en model_uri = f"runs:/{run_id}/model" (script iris_register.py)
+    
+    ''' Sin en su lugar ejecutamos el comando con estas opciones,
+        también se registrará el modelo en el Registry:
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path="model",
+        registered_model_name=model_name  # Se registrará en el Model Registry
+    )
+    '''
 
     print(f"Run almacenado en: {mlflow.get_artifact_uri()}")
+    print(f"\n  Modelo en run_id: {run.info.run_id}")
+    print(f"\n  ID del experimento: {run.info.experiment_id} \n")
+
+'''
+Run almacenado en: file://.../Iris/mlruns/1/3b26bbd82545404683413aa4cd8c6903/artifacts
+  Modelo en run_id: 3b26bbd82545404683413aa4cd8c6903
+  ID del experimento: 1
+'''
