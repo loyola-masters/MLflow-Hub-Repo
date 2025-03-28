@@ -1,2 +1,6 @@
 mlruns
 *.db
+*.log
+.ipynb_checkpoints
+
+
