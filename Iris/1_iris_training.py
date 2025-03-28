@@ -22,7 +22,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 # Entrenamiento y tracking con MLflow
 with mlflow.start_run(run_name=run_name) as run:
-    max_iter = 10  # Para simular iteraciones y ver convergencia
+    max_epoch = 10  # Para simular iteraciones y ver convergencia
     model = LogisticRegression(
         max_iter=4,  # 4 iteraciones por ciclo
         warm_start=True,  # Para continuar el entrenamiento
@@ -47,9 +47,9 @@ with mlflow.start_run(run_name=run_name) as run:
     mlflow.log_param("solver", "saga")
     mlflow.log_param("multi_class", "multinomial")
     mlflow.log_param("warm_start", True)
-    mlflow.log_param("max_iter_total", max_iter)
+    mlflow.log_param("max_iter_total", max_epoch)
 
-    for epoch in range(1, max_iter + 1):
+    for epoch in range(1, max_epoch + 1):
         model.fit(X_train, y_train)
 
         # Métricas

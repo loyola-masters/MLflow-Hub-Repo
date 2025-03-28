@@ -5,7 +5,7 @@ mlflow.set_tracking_uri("sqlite:///mlflow.db")
 
 # Reemplaza con el run_id proporcionado por el script anterior
 # run_id = "[PEGA_AQUÍ_EL_RUN_ID]"
-run_id = "dd21ac4af35c49b6ab77330fad55e511"
+run_id = "1d1bcbdf4f9e4f3fa6a2d3e449fa3881"
 
 model_uri = f"runs:/{run_id}/model"
 
@@ -18,9 +18,6 @@ print(f"Modelo registrado: {result.name}, versión: {result.version}")
 #  COMPROBACIÓN DE ESTADO
 # ========================
 from mlflow.tracking import MlflowClient
-
-# Indicar la versión que se asignó
-print(f"Modelo registrado: {result.name}, versión: {result.version}")
 
 # Comprobar el estado de la versión
 client = MlflowClient()

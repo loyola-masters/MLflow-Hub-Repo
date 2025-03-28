@@ -19,7 +19,7 @@ payload = {
 
 # 4) Send POST request to the MLflow "invocations" endpoint
 response = requests.post(
-    url="http://localhost:1234/invocations",
+    url="http://127.0.0.1:1234/invocations",
     headers={"Content-Type": "application/json"},
     data=json.dumps(payload)
 )
