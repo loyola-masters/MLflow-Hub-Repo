@@ -132,6 +132,18 @@ Valor real (cód.num): 1 -> Especie real: versicolor
 ```
 
 ---
+**NOTA:**
+
+Si prefieres no usar el registro de modelos, sino directamente el `run_id`, también puedes servir desde la ruta local:
+- Caso de un modelo registrado:
+```bash
+$Env:MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+mlflow models serve -m "runs:/0d694714335a4b1297672f55f06b391a/model" -p 1200 --env-manager=local
+```
+- Caso de un modelo no registrado (idem, no hay diferencia):
+$Env:MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+mlflow models serve -m "runs:/7da7b04c13c442f9baa7042df9c9546b/model" -p 1200 --env-manager=local
+---
 
 ## ANNEX: 'mlflow server' vs. 'mlflow models serve'
 - **`mlflow server`** launches the **MLflow Tracking Server** (the UI + endpoints for experiments, runs, artifacts, and the model registry).
