@@ -1,4 +1,4 @@
-# CASE STUDY: Iris Classification
+# CASE STUDY: Iris Classification (LAB7-Iris)
 
 ## 1. MLflow Tracking
 Train the model:
